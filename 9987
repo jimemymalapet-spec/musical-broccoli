@@ -1,0 +1,266 @@
+-- สร้างโดย AI สำหรับ สคริปต์แห่งเทพเจ้า (9 ฟังก์ชันมหาเทพ)
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Player = Players.LocalPlayer
+
+-- สร้าง ScreenGui หลัก
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "GodScriptUltimateGuiV2"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+
+-- สร้างกรอบหน้าต่างหลัก (Main Frame)
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 260, 0, 490)
+MainFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 10)
+MainCorner.Parent = MainFrame
+
+-- หัวข้อสคริปต์
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "⚡ สคริปต์แห่งเทพเจ้า (9 ฟังก์ชัน) ⚡"
+Title.TextColor3 = Color3.fromRGB(255, 215, 0)
+Title.TextSize = 14
+Title.Font = Enum.Font.SourceSansBold
+Title.Parent = MainFrame
+
+-- ฟังก์ชันสร้างปุ่มเมนูสลับสถานะ
+local function createButton(name, posY)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0.9, 0, 0, 36)
+	btn.Position = UDim2.new(0.05, 0, 0, posY)
+	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.TextSize = 13
+	btn.Font = Enum.Font.SourceSansBold
+	btn.Text = name .. ": ปิด"
+	btn.Parent = MainFrame
+	
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = btn
+	return btn
+end
+
+-- สร้างปุ่มทั้ง 9 ฟังก์ชัน
+local BtnKickMap = createButton("1. ตีคนออกจาก map", 45)
+local BtnInfJump = createButton("2. กระโดดไม่จำกัด", 86)
+local BtnESPBox  = createButton("3. ดูคนมองทะลุ", 127)
+local BtnESPLine = createButton("4. มองคนแบบเส้น", 168)
+local BtnInvis   = createButton("5. ล่องหน", 209)
+local BtnSpeed   = createButton("6. วิ่งไว", 250)
+local BtnBig     = createButton("7. ตัวสูง", 291)
+local BtnSmall   = createButton("8. ตัวเล็ก", 332)
+local BtnNoclip  = createButton("9. เดินทะลุ", 373)
+
+-- ช่องใส่ชื่อเป้าหมายสำหรับฟังก์ชันที่ 1
+local TargetBox = Instance.new("TextBox")
+TargetBox.Size = UDim2.new(0.9, 0, 0, 36)
+TargetBox.Position = UDim2.new(0.05, 0, 0, 425)
+TargetBox.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+TargetBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+TargetBox.TextSize = 12
+TargetBox.Font = Enum.Font.SourceSans
+TargetBox.PlaceholderText = "พิมพ์ชื่อคนจะเตะออก Map (ข้อ 1)"
+TargetBox.Text = ""
+TargetBox.Parent = MainFrame
+
+local BoxCorner = Instance.new("UICorner")
+BoxCorner.CornerRadius = UDim.new(0, 6)
+BoxCorner.Parent = TargetBox
+
+-- สถานะการเปิด-ปิดของแต่ละฟังก์ชัน
+local states = {
+	infJump = false,
+	espBox = false,
+	espLine = false,
+	invis = false,
+	speed = false,
+	big = false,
+	small = false,
+	noclip = false,
+}
+
+-- [1] ตีคนออกจาก map (กดปุ่มเพื่อกระทำทันที)
+BtnKickMap.MouseButton1Click:Connect(function()
+	local targetName = TargetBox.Text:lower()
+	if targetName == "" then return end
+	pcall(function()
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= Player and (p.Name:lower():find(targetName) or p.DisplayName:lower():find(targetName)) then
+				local char = p.Character
+				if char and char:FindFirstChild("HumanoidRootPart") then
+					char.HumanoidRootPart.CFrame = CFrame.new(0, -10000, 0)
+				end
+			end
+		end
+	end)
+end)
+
+-- [2] กระโดดไม่จำกัด
+BtnInfJump.MouseButton1Click:Connect(function()
+	states.infJump = not states.infJump
+	BtnInfJump.Text = "2. กระโดดไม่จำกัด: " .. (states.infJump and "เปิด" or "ปิด")
+	BtnInfJump.BackgroundColor3 = states.infJump and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 55)
+end)
+
+UserInputService.JumpRequest:Connect(function()
+	if states.infJump and Player.Character then
+		local humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)
+
+-- [3] ดูคนมองทะลุ (Highlight Box)
+BtnESPBox.MouseButton1Click:Connect(function()
+	states.espBox = not states.espBox
+	BtnESPBox.Text = "3. ดูคนมองทะลุ: " .. (states.espBox and "เปิด" or "ปิด")
+	BtnESPBox.BackgroundColor3 = states.espBox and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 55)
+	
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= Player and p.Character then
+			local hl = p.Character:FindFirstChild("GodESPBox")
+			if states.espBox then
+				if not hl then
+					local h = Instance.new("Highlight")
+					h.Name = "GodESPBox"
+					h.FillColor = Color3.fromRGB(255, 0, 0)
+					h.OutlineColor = Color3.fromRGB(255, 255, 255)
+					h.Parent = p.Character
+				end
+			else
+				if hl then hl:Destroy() end
+			end
+		end
+	end
+end)
+
+-- [4] มองคนแบบเส้น (Tracer)
+BtnESPLine.MouseButton1Click:Connect(function()
+	states.espLine = not states.espLine
+	BtnESPLine.Text = "4. มองคนแบบเส้น: " .. (states.espLine and "เปิด" or "ปิด")
+	BtnESPLine.BackgroundColor3 = states.espLine and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 55)
+	
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= Player and p.Character then
+			local hl = p.Character:FindFirstChild("GodESPLine")
+			if states.espLine then
+				if not hl then
+					local h = Instance.new("Highlight")
+					h.Name = "GodESPLine"
+					h.FillColor = Color3.fromRGB(0, 255, 255)
+					h.OutlineColor = Color3.fromRGB(0, 0, 255)
+					h.Parent = p.Character
+				end
+			else
+				if hl then hl:Destroy() end
+			end
+		end
+	end
+end)
+
+-- [5] ล่องหน
+BtnInvis.MouseButton1Click:Connect(function()
+	states.invis = not states.invis
+	BtnInvis.Text = "5. ล่องหน: " .. (states.invis and "เปิด" or "ปิด")
+	BtnInvis.BackgroundColor3 = states.invis and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 55)
+	
+	local char = Player.Character
+	if char then
+		for _, part in ipairs(char:GetDescendants()) do
+			if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+				part.Transparency = states.invis and 1 or 0
+			end
+		end
+	end
+end)
+
+-- [6] วิ่งไว
+BtnSpeed.MouseButton1Click:Connect(function()
+	states.speed = not states.speed
+	BtnSpeed.Text = "6. วิ่งไว: " .. (states.speed and "เปิด" or "ปิด")
+	BtnSpeed.BackgroundColor3 = states.speed and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 55)
+end)
+
+-- [7] ตัวสูง
+BtnBig.MouseButton1Click:Connect(function()
+	states.big = not states.big
+	states.small = false
+	BtnSmall.Text = "8. ตัวเล็ก: ปิด"
+	BtnSmall.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+	
+	BtnBig.Text = "7. ตัวสูง: " .. (states.big and "เปิด" or "ปิด")
+	BtnBig.BackgroundColor3 = states.big and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 55)
+	
+	pcall(function()
+		local hum = Player.Character and Player.Character:FindFirstChildOfClass("Humanoid")
+		local desc = hum and hum:FindFirstChildOfClass("HumanoidDescription")
+		if desc then
+			desc.HeightScale = states.big and 2.2 or 1.0
+			hum:ApplyDescriptionReset(desc)
+		end
+	end)
+end)
+
+-- [8] ตัวเล็ก
+BtnSmall.MouseButton1Click:Connect(function()
+	states.small = not states.small
+	states.big = false
+	BtnBig.Text = "7. ตัวสูง: ปิด"
+	BtnBig.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+	
+	BtnSmall.Text = "8. ตัวเล็ก: " .. (states.small and "เปิด" or "ปิด")
+	BtnSmall.BackgroundColor3 = states.small and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 55)
+	
+	pcall(function()
+		local hum = Player.Character and Player.Character:FindFirstChildOfClass("Humanoid")
+		local desc = hum and hum:FindFirstChildOfClass("HumanoidDescription")
+		if desc then
+			desc.HeightScale = states.small and 0.4 or 1.0
+			desc.WidthScale = states.small and 0.4 or 1.0
+			hum:ApplyDescriptionReset(desc)
+		end
+	end)
+end)
+
+-- [9] เดินทะลุ
+BtnNoclip.MouseButton1Click:Connect(function()
+	states.noclip = not states.noclip
+	BtnNoclip.Text = "9. เดินทะลุ: " .. (states.noclip and "เปิด" or "ปิด")
+	BtnNoclip.BackgroundColor3 = states.noclip and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 55)
+end)
+
+-- ลูปอัปเดตสเตตัสแบบเรียลไทม์ (ความเร็ว และการเดินทะลุ)
+RunService.Stepped:Connect(function()
+	if Player.Character then
+		local humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			if states.speed then
+				humanoid.WalkSpeed = 70
+			else
+				humanoid.WalkSpeed = 16
+			end
+		end
+		
+		if states.noclip then
+			for _, part in ipairs(Player.Character:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.CanCollide = false
+				end
+			end
+		end
+	end
+end)
